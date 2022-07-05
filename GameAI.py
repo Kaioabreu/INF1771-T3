@@ -20,6 +20,7 @@ __email__ = "abaffa@inf.puc-rio.br"
 
 import random
 from Map.Position import Position
+from Gamemap import Gamemap
 
 # <summary>
 # Game AI Example
@@ -32,6 +33,7 @@ class GameAI():
     score = 0
     energy = 0
     status = []
+    gamemap = Gamemap()
 
     # <summary>
     # Refresh player status
@@ -141,10 +143,14 @@ class GameAI():
         #cmd = "";
         for s in o:
         
-            if s == "blocked" or s == "steps" or s == "breeze" or s =="flash" or s == "blueLight" or s =="redLight":
+            if s == "blocked" or s == "steps" or s == "breeze" or s =="flash" or s == "blueLight" or s =="redLight" or s[:6]=="enemy#":
                 self.status.append(s)
-                pass
-
+                if s == "blueLight":
+                    self.gamemap.addPosition("gold",self.player)
+                elif s == "redLight":
+                    self.gamemap.addPosition("powerup", self.player)
+                elif s == "blocked":
+                    self.gamemap.addPosition("block", self.NextPosition())
 
     # <summary>
     # No observations received
@@ -166,10 +172,14 @@ class GameAI():
         if "redLight" in self.status and self.energy<30:
             return "pegar_ouro"
 
+        if "enemy#1" in self.status or "enemy#2" in self.status or "enemy#3" in self.status:
+            return "atacar"
+        
+        ## ALEATÓRIO
         n = random.randint(0,3)
         
-
         if n == 0:
+            print(self.dir)
             return "virar_direita"
         elif n == 1:
             return "virar_esquerda"

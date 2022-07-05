@@ -1,17 +1,21 @@
+from Map.Position import Position
 class Gamemap():   
     width = 34
     heigth = 59
     goldPos = []
     voidPos = []
+    powerupPos = []
     blockedPos = []
     
-    def addPosition(self,type, x, y):
+    def addPosition(self,type, Position):
         if type == "gold":
-            self.goldPos.append((x,y))
+            self.goldPos.append(Position)
         elif type == "void":
-            self.voidPos.append((x,y))
+            self.voidPos.append(Position)
         elif type == "block":
-            self.blockedPos.append((x,y))
+            self.blockedPos.append(Position)
+        elif type == "powerup":
+            self.powerupPos.append(Position)
     
     def getGoldPos(self):
         return self.goldPos
