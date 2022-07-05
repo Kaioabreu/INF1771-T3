@@ -31,7 +31,7 @@ import datetime
 # </summary>
 class Bot():
 
-    name = "Test1" # BOT NAME
+    name = "jkfd" # BOT NAME
     host = "atari.icad.puc-rio.br" # SERVER
 
     client = None

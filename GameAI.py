@@ -33,6 +33,7 @@ class GameAI():
     score = 0
     energy = 0
     status = []
+    contEvent = 0
     gamemap = Gamemap()
 
     # <summary>
@@ -164,19 +165,49 @@ class GameAI():
     # Get Decision
     # </summary>
     # <returns>command string to new decision</returns>
+
     def GetDecision(self):
-
+        self.contEvent+=1 # toda vez que ele vira o cont é zerado
+        if self.contEvent >= 10:
+            self.contEvent = 0
+            if random.randint(0,1):
+                return "virar_direita"
+            else: 
+                return "virar_esquerda"
+        print(self.status)
         if "blueLight" in self.status:
+            self.GetObservationsClean()
             return "pegar_ouro"
 
-        if "redLight" in self.status and self.energy<30:
+        elif "redLight" in self.status and self.energy<30:
+            self.GetObservationsClean()
             return "pegar_ouro"
 
-        if "enemy#1" in self.status or "enemy#2" in self.status or "enemy#3" in self.status:
+        elif "enemy#1" in self.status or "enemy#2" in self.status or "enemy#3" in self.status:
             return "atacar"
+        elif "enemy#4" in self.status or "enemy#5" in self.status or "enemy#6" in self.status:
+            self.contEvent = 0
+            return "virar_direita"
         
+    
+        elif "blocked" in self.status:
+            self.contEvent = 0
+            self.GetObservationsClean()
+            if random.randint(0,1):
+                return "virar_direita"
+            return "virar_esquerda"
+        #O que fazer qunado tem flash ou breeze? Ele ta travando loucamente
+        # o melhor seria se sentisse uma breeze ir para um lugar seguro usando o A*
+        elif 'flash' in self.status:
+            self.GetObservationsClean()
+            return 'andar'
+
+        elif "breeze" in self.status:
+           
+            return "andar"
+        return "andar"
         ## ALEATÓRIO
-        n = random.randint(0,3)
+        '''n = random.randint(0,3)
         
         if n == 0:
             print(self.dir)
@@ -186,6 +217,6 @@ class GameAI():
         elif n == 2:
             return "andar"
         elif n == 3:
-            return "andar_re"
-        return ""
+            return "andar_re"'''
+        
 
