@@ -39,7 +39,7 @@ class Bot():
     timer1 = None
     
     running = True
-    thread_interval = 0.1 # USE BETWEEN 0.1 and 1 (0.1 real setting, 1 debug settings and makes the bot slower)
+    thread_interval = 0.4 # USE BETWEEN 0.1 and 1 (0.1 real setting, 1 debug settings and makes the bot slower)
 
     playerList = {} #new Dictionary<long, PlayerInfo>
     shotList = [] #new List<ShotInfo>
@@ -305,11 +305,7 @@ class Bot():
             self.client.sendForward()
         elif decision ==  "atacar":
             self.client.sendShoot()
-        elif decision ==  "pegar_ouro":
-            self.client.sendGetItem()
-        elif decision == "pegar_anel":
-            self.client.sendGetItem()
-        elif decision == "pegar_powerup":
+        elif decision ==  "pegar":
             self.client.sendGetItem()
         elif decision ==  "andar_re":
             self.client.sendBackward()
@@ -358,7 +354,7 @@ class Bot():
 
             print("Connected")
             self.client.sendName(self.name)
-            self.client.sendRGB(255,0,0)  # BOT COLOR
+            self.client.sendRGB(255,255,255)  # BOT COLOR
             self.client.sendRequestGameStatus()
             self.client.sendRequestUserStatus()
             self.client.sendRequestObservation()

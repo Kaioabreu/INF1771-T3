@@ -20,7 +20,7 @@ __email__ = "abaffa@inf.puc-rio.br"
 
 import random
 from Map.Position import Position
-from Gamemap import Gamemap
+from Gamemap import Gamemap, Node
 
 # <summary>
 # Game AI Example
@@ -36,6 +36,8 @@ class GameAI():
     contEvent = 0
     proxEvento = []
     gamemap = Gamemap()
+    tempBlock = []
+    #currentAction = "goldpath"
 
     # <summary>
     # Refresh player status
@@ -145,74 +147,155 @@ class GameAI():
         #cmd = "";
         for s in o:
         
-            if s == "blocked" or s == "steps" or s == "breeze" or s =="flash" or s == "blueLight" or s =="redLight" or s[:6]=="enemy#":
+            if s == "blocked" or s == "steps" or s == "breeze" or s == "blueLight" or s =="redLight" or s[:6]=="enemy#":
                 self.status.append(s)
                 if s == "blueLight":
-                    if(not self.player in self.gamemap.getGoldPos):
-                        self.gamemap.addPosition("gold",self.player)
+                    if(not (self.player.x, self.player.y) in self.gamemap.getGoldPos()):
+                        self.gamemap.addPosition("gold",self.player.x, self.player.y)
+                        self.proxEvento.insert(0,"pegar")
                 elif s == "redLight":
-                    if(not self.player in self.gamemap.getPowerupPos):
-                        self.gamemap.addPosition("powerup", self.player)
+                    if(not (self.player.x, self.player.y) in self.gamemap.getPowerupPos()):
+                        self.gamemap.addPosition("powerup", self.player.x, self.player.y)
                 elif s == "blocked":
-                    if(not self.NextPosition() in self.gamemap.getBlockedPos):
-                        self.gamemap.addPosition("block", self.NextPosition())
+                        
+                    if(not (self.NextPosition().x,self.NextPosition().y) in self.gamemap.getBlockedPos()):
+                        self.gamemap.addPosition("block", self.NextPosition().x,self.NextPosition().y)
+                        self.proxEvento = []
+                        #for i in self.gamemap.getBlockedPos():
+                        #print(self.gamemap.getBlockedPos())
+                elif s == "breeze" or s == "flash":
+                    self.proxEvento = []
 
     # <summary>
     # No observations received
     # </summary>
     def GetObservationsClean(self):
         self.status = []
-        pass
+
+    def isValidFoward(self):
+        d = self.dir
+        p = self.player
+        if ((d == "north" and p.y == 0) or (d =="west" and p.x == 0) or (d == "east" and p.x == self.gamemap.heigth-1) or (d == "south" and p.y == self.gamemap.width-1) or self.gamemap.isBadPos(self.NextPosition().x,self.NextPosition().y)):
+            return False
+        return True
+
+#Pode ser lapidada se tiver tempo sobrando(Achar exatamente onde está o buraco)
+    def unsafePoints(self):
+        p = self.player
+        self.gamemap.addPosition("unsafe", p.x, p.y)
+        if (self.dir == "north"):
+            self.gamemap.addPosition("unsafe", p.x+1, p.y)
+            self.gamemap.addPosition("unsafe", p.x-1, p.y)
+            self.gamemap.addPosition("unsafe", p.x, p.y-1)
+        elif (self.dir == "south"):
+            self.gamemap.addPosition("unsafe", p.x+1, p.y)
+            self.gamemap.addPosition("unsafe", p.x-1, p.y)
+            self.gamemap.addPosition("unsafe", p.x, p.y+1)
+        elif (self.dir == "west"):
+            self.gamemap.addPosition("unsafe", p.x-1, p.y)
+            self.gamemap.addPosition("unsafe", p.x, p.y-1)
+            self.gamemap.addPosition("unsafe", p.x, p.y+1)
+        elif (self.dir == "east"):
+            self.gamemap.addPosition("unsafe", p.x+1, p.y)
+            self.gamemap.addPosition("unsafe", p.x, p.y-1)
+            self.gamemap.addPosition("unsafe", p.x, p.y+1)
+        #print("Unsafe: ",self.gamemap.getUnsafePos())
     
+    def convertPathToCommands(self, path):
+        nextNode = Node(self.player.x, self.player.y, 0, 0, 0)
+        Atualdir = self.dir
+        while(path):
+            AtualNode = nextNode
+            nextNode = path.pop(0)
+            if(nextNode.x>AtualNode.x):
+                if(Atualdir=="south"):
+                    self.proxEvento.append("virar_esquerda")
+                elif(Atualdir=="north"):
+                    self.proxEvento.append("virar_direita")
+                elif(Atualdir=="west"):
+                    self.proxEvento.append("virar_esquerda")
+                    self.proxEvento.append("virar_esquerda")
+                Atualdir = "east"
+            elif(nextNode.x<AtualNode.x):
+                if(Atualdir=="south"):
+                    self.proxEvento.append("virar_direita")
+                elif(Atualdir=="north"):
+                    self.proxEvento.append("virar_esquerda")
+                elif(Atualdir=="east"):
+                    self.proxEvento.append("virar_esquerda")
+                    self.proxEvento.append("virar_esquerda")
+                Atualdir = "west"
+            elif(nextNode.y<AtualNode.y):
+                if(Atualdir=="west"):
+                    self.proxEvento.append("virar_direita")
+                elif(Atualdir=="east"):
+                    self.proxEvento.append("virar_esquerda")
+                elif(Atualdir=="south"):
+                    self.proxEvento.append("virar_esquerda")
+                    self.proxEvento.append("virar_esquerda")
+                Atualdir = "north"
+            elif(nextNode.y>AtualNode.y):
+                if(Atualdir=="east"):
+                    self.proxEvento.append("virar_direita")
+                elif(Atualdir=="west"):
+                    self.proxEvento.append("virar_esquerda")
+                elif(Atualdir=="north"):
+                    self.proxEvento.append("virar_esquerda")
+                    self.proxEvento.append("virar_esquerda")
+                Atualdir = "south"
+            if(nextNode.x!=AtualNode.x or nextNode.y!=AtualNode.y):
+                self.proxEvento.append("andar")
 
-    # <summary>
-    # Get Decision
-    # </summary>
-    # <returns>command string to new decision</returns>
-
+    
     def GetDecision(self):
+        if(self.status!=[]):
+            print(self.status)
+        #Se energia <30, ir para um powerup caso tenha algum anotado (A*)
+
+        #Após achar 3 ouros aleatóriamente, começar a percorrer um mesmo caminho pegando esses 3 (A*)
+
         self.contEvent+=1 # toda vez que ele vira o cont é zerado
-        if self.contEvent >= 10:
+        if "breeze" in self.status:
+            self.unsafePoints()
+            self.proxEvento.append("andar_re")
+        elif(True):
+            a = self.gamemap.aStar(self.player.x,self.player.y,0,0)
+            self.convertPathToCommands(a)
+            #print(self.proxEvento)
+        elif "blueLight" in self.status:
+            self.proxEvento.append("pegar")
+        elif "redLight" in self.status and self.energy<30:
+            self.proxEvento.append("pegar")
+        elif "breeze" in self.status:
+            self.unsafePoints()
+            self.proxEvento.append("andar_re")
+
+        elif "enemy#1" in self.status or "enemy#2" in self.status or "enemy#3" in self.status:
+            self.proxEvento.append("atacar")        
+    
+        elif "blocked" in self.status:
+            self.contEvent = 0
+            if random.randint(0,1):
+                self.proxEvento.append("virar_direita")
+            else:
+                self.proxEvento.append("virar_esquerda")
+
+        # o melhor seria se sentisse uma breeze ir para um lugar seguro usando o A*
+
+        elif self.contEvent >= 10:
             self.contEvent = 0
             if random.randint(0,1):
                 self.proxEvento.append("virar_direita")
             else: 
                 self.proxEvento.append("virar_esquerda")
-        print(self.status)
-        if "blueLight" in self.status:
-            self.GetObservationsClean()
-            self.proxEvento.append("pegar_ouro")
-
-        elif "redLight" in self.status and self.energy<30:
-            self.GetObservationsClean()
-            self.proxEvento.append("pegar_ouro")
-
-        elif "enemy#1" in self.status or "enemy#2" in self.status or "enemy#3" in self.status:
-            self.proxEvento.append("atacar")
-        elif "enemy#4" in self.status or "enemy#5" in self.status or "enemy#6" in self.status:
-            self.contEvent = 0
-            self.proxEvento.append("virar_direita")
+        elif self.isValidFoward():
             self.proxEvento.append("andar")
-        
-    
-        elif "blocked" in self.status:
-            self.contEvent = 0
-            self.GetObservationsClean()
-            if random.randint(0,1):
-                self.proxEvento.append("virar_direita")
-            else:
-                self.proxEvento.append("virar_esquerda")
-        #O que fazer qunado tem flash ou breeze? Ele ta travando loucamente
-        # o melhor seria se sentisse uma breeze ir para um lugar seguro usando o A*
-        elif 'flash' in self.status:
-            self.GetObservationsClean()
-            self.proxEvento.append('andar')
-
-        elif "breeze" in self.status:
-            self.proxEvento.append("andar_re")
+        elif random.randint(0,1):
+            self.proxEvento.append("virar_direita")
+        else:
             self.proxEvento.append("virar_esquerda")
-            
-        self.proxEvento.append("andar")
-        ## ALEATÓRIO
+        
+        if(self.proxEvento == []):
+            self.proxEvento.append("")
         
 
