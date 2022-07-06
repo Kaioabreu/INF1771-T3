@@ -294,8 +294,9 @@ class Bot():
     # Execute some decision
     # </summary>
     def DoDecision(self):
-
-        decision = self.gameAi.GetDecision()
+        if not self.gameAi.proxEvento:
+            self.gameAi.GetDecision()
+        decision = self.gameAi.proxEvento.pop(0)
         if decision == "virar_direita":
             self.client.sendTurnRight()
         elif decision == "virar_esquerda":

@@ -34,6 +34,7 @@ class GameAI():
     energy = 0
     status = []
     contEvent = 0
+    proxEvento = []
     gamemap = Gamemap()
 
     # <summary>
@@ -171,52 +172,44 @@ class GameAI():
         if self.contEvent >= 10:
             self.contEvent = 0
             if random.randint(0,1):
-                return "virar_direita"
+                self.proxEvento.append("virar_direita")
             else: 
-                return "virar_esquerda"
+                self.proxEvento.append("virar_esquerda")
         print(self.status)
         if "blueLight" in self.status:
             self.GetObservationsClean()
-            return "pegar_ouro"
+            self.proxEvento.append("pegar_ouro")
 
         elif "redLight" in self.status and self.energy<30:
             self.GetObservationsClean()
-            return "pegar_ouro"
+            self.proxEvento.append("pegar_ouro")
 
         elif "enemy#1" in self.status or "enemy#2" in self.status or "enemy#3" in self.status:
-            return "atacar"
+            self.proxEvento.append("atacar")
         elif "enemy#4" in self.status or "enemy#5" in self.status or "enemy#6" in self.status:
             self.contEvent = 0
-            return "virar_direita"
+            self.proxEvento.append("virar_direita")
+            self.proxEvento.append("andar")
         
     
         elif "blocked" in self.status:
             self.contEvent = 0
             self.GetObservationsClean()
             if random.randint(0,1):
-                return "virar_direita"
-            return "virar_esquerda"
+                self.proxEvento.append("virar_direita")
+            else:
+                self.proxEvento.append("virar_esquerda")
         #O que fazer qunado tem flash ou breeze? Ele ta travando loucamente
         # o melhor seria se sentisse uma breeze ir para um lugar seguro usando o A*
         elif 'flash' in self.status:
             self.GetObservationsClean()
-            return 'andar'
+            self.proxEvento.append('andar')
 
         elif "breeze" in self.status:
-           
-            return "andar"
-        return "andar"
+            self.proxEvento.append("andar_re")
+            self.proxEvento.append("virar_esquerda")
+            
+        self.proxEvento.append("andar")
         ## ALEATÓRIO
-        '''n = random.randint(0,3)
-        
-        if n == 0:
-            print(self.dir)
-            return "virar_direita"
-        elif n == 1:
-            return "virar_esquerda"
-        elif n == 2:
-            return "andar"
-        elif n == 3:
-            return "andar_re"'''
         
 
