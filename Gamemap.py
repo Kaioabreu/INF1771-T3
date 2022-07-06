@@ -41,6 +41,8 @@ class Gamemap():
     
     def getUnsafePos(self):
         return self.unsafePos
+    def getNotVisit(self):
+        return self.notVisit
 #Seria bom ajustar essa função futuramente
     def nodeCost(self,x,y):
         if(self.isBadPos(x,y)):
