@@ -25,7 +25,7 @@ class Gamemap():
         for i in range(self.heigth):
             for j in range(self.width):
                 self.notVisit.append((i,j))
-        self.notVisit = []
+        
 
     def getGoldPos(self):
         return self.goldPos

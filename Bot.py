@@ -302,6 +302,11 @@ class Bot():
         elif decision == "virar_esquerda":
             self.client.sendTurnLeft()
         elif decision == "andar":
+            pos = (self.gameAi.player.x,self.gameAi.player.y)
+            notVisited = self.gameAi.gamemap.getNotVisit()
+            if(pos in notVisited):
+                notVisited.remove(pos)
+                print(len(notVisited))
             self.client.sendForward()
         elif decision ==  "atacar":
             self.client.sendShoot()
