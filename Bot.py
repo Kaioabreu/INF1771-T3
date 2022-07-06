@@ -31,7 +31,7 @@ import datetime
 # </summary>
 class Bot():
 
-    name = "Test1" # BOT NAME
+    name = "jkfd" # BOT NAME
     host = "atari.icad.puc-rio.br" # SERVER
 
     client = None
@@ -294,8 +294,9 @@ class Bot():
     # Execute some decision
     # </summary>
     def DoDecision(self):
-
-        decision = self.gameAi.GetDecision()
+        if not self.gameAi.proxEvento:
+            self.gameAi.GetDecision()
+        decision = self.gameAi.proxEvento.pop(0)
         if decision == "virar_direita":
             self.client.sendTurnRight()
         elif decision == "virar_esquerda":
