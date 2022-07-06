@@ -146,11 +146,14 @@ class GameAI():
             if s == "blocked" or s == "steps" or s == "breeze" or s =="flash" or s == "blueLight" or s =="redLight" or s[:6]=="enemy#":
                 self.status.append(s)
                 if s == "blueLight":
-                    self.gamemap.addPosition("gold",self.player)
+                    if(not self.player in self.gamemap.getGoldPos):
+                        self.gamemap.addPosition("gold",self.player)
                 elif s == "redLight":
-                    self.gamemap.addPosition("powerup", self.player)
+                    if(not self.player in self.gamemap.getPowerupPos):
+                        self.gamemap.addPosition("powerup", self.player)
                 elif s == "blocked":
-                    self.gamemap.addPosition("block", self.NextPosition())
+                    if(not self.NextPosition() in self.gamemap.getBlockedPos):
+                        self.gamemap.addPosition("block", self.NextPosition())
 
     # <summary>
     # No observations received

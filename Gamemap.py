@@ -6,6 +6,8 @@ class Gamemap():
     voidPos = []
     powerupPos = []
     blockedPos = []
+    afePos = []
+    UnsafePos = []
     
     def addPosition(self,type, Position):
         if type == "gold":
@@ -25,3 +27,6 @@ class Gamemap():
 
     def getBlockedPos(self):
         return self.blockedPos
+    
+    def getPowerupPos(self):
+        return self.powerupPos
