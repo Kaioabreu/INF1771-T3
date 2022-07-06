@@ -150,9 +150,11 @@ class GameAI():
             if s == "blocked" or s == "steps" or s == "breeze" or s == "blueLight" or s =="redLight" or s[:6]=="enemy#":
                 self.status.append(s)
                 if s == "blueLight":
+                    print(self.gamemap.goldPos)
+                    self.proxEvento.insert(0,"pegar")
                     if(not (self.player.x, self.player.y) in self.gamemap.getGoldPos()):
                         self.gamemap.addPosition("gold",self.player.x, self.player.y)
-                        self.proxEvento.insert(0,"pegar")
+                        
                 elif s == "redLight":
                     if(not (self.player.x, self.player.y) in self.gamemap.getPowerupPos()):
                         self.gamemap.addPosition("powerup", self.player.x, self.player.y)
@@ -257,13 +259,15 @@ class GameAI():
         self.contEvent+=1 # toda vez que ele vira o cont é zerado
         if "breeze" in self.status:
             self.unsafePoints()
+            self.proxEvento = list() #zerando os próximos comandos
             self.proxEvento.append("andar_re")
-        elif(True):
-            a = self.gamemap.aStar(self.player.x,self.player.y,0,0)
+       
+            a = self.gamemap.aStar(self.player.x,self.player.y,10,10)
             self.convertPathToCommands(a)
             #print(self.proxEvento)
         elif "blueLight" in self.status:
-            self.proxEvento.append("pegar")
+            print(self.gamemap.goldPos)
+            #self.proxEvento.append("pegar")
         elif "redLight" in self.status and self.energy<30:
             self.proxEvento.append("pegar")
         elif "breeze" in self.status:
@@ -282,12 +286,19 @@ class GameAI():
 
         # o melhor seria se sentisse uma breeze ir para um lugar seguro usando o A*
 
-        elif self.contEvent >= 10:
+        elif self.contEvent >= 100:
             self.contEvent = 0
-            if random.randint(0,1):
-                self.proxEvento.append("virar_direita")
-            else: 
-                self.proxEvento.append("virar_esquerda")
+            if self.gamemap.goldPos != []:
+                x,y = self.gamemap.goldPos[0]
+                a = self.gamemap.aStar(self.player.x,self.player.y,x,y)
+                self.convertPathToCommands(a)
+            else:
+                if random.randint(0,1):
+                    self.proxEvento.append("virar_direita")
+                else: 
+                    self.proxEvento.append("virar_esquerda")
+            
+            
         elif self.isValidFoward():
             self.proxEvento.append("andar")
         elif random.randint(0,1):
