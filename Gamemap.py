@@ -1,5 +1,6 @@
 from platform import node
 from Map.Position import Position
+
 class Gamemap():   
     width = 34
     heigth = 59
@@ -9,6 +10,7 @@ class Gamemap():
     blockedPos = []
     safePos = []
     unsafePos = []
+    notVisit = []
     
     def addPosition(self,type, x,y):
         if type == "gold":
@@ -19,7 +21,12 @@ class Gamemap():
             self.blockedPos.append((x,y))
         elif type == "powerup":
             self.powerupPos.append((x,y))
-    
+    def __init__(self):
+        for i in range(self.heigth):
+            for j in range(self.width):
+                self.notVisit.append((i,j))
+        self.notVisit = []
+
     def getGoldPos(self):
         return self.goldPos
 
