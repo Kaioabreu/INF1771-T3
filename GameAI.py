@@ -177,8 +177,10 @@ class GameAI():
                     print("breeze")
                     self.unsafePoints()
                     self.GetObservationsClean()
-                    self.proxEvento = []
-                    self.proxEvento.insert(0,"andar_re")
+                    if self.proxEvento != [] and self.proxEvento[0] == "pegar":
+                        self.proxEvento = ["pegar"]
+                    else:
+                        self.proxEvento = []
                     coords = (self.xObj,self.yObj)
                     if (coords in self.gamemap.getGoldPos() or coords in self.gamemap.getPowerupPos()):
                         a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj)
