@@ -18,7 +18,7 @@ __version__ = "1.0.0"
 __email__ = "abaffa@inf.puc-rio.br"
 #############################################################
 
-import random
+
 from Map.Position import Position
 from Gamemap import Gamemap, Node
 

@@ -1,5 +1,6 @@
 from platform import node
 from Map.Position import Position
+from random import shuffle
 width = 34
 heigth = 59
 class Gamemap():   
@@ -31,6 +32,7 @@ class Gamemap():
         for i in range(self.heigth):
             for j in range(self.width):
                 self.notVisit.append((i,j))
+        shuffle(self.notVisit)
         
 
     def getGoldPos(self):
