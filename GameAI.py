@@ -166,6 +166,8 @@ class GameAI():
 
                 elif s == "redLight":
                     self.GetObservationsClean()
+                    if self.energy<=50:
+                        self.proxEvento.insert(0,"pegar")
                     if(not (self.player.x, self.player.y) in self.gamemap.getPowerupPos()):
                         self.gamemap.addPosition("powerup", self.player.x, self.player.y)
                 elif s == "breeze" or s == "flash":
@@ -294,12 +296,6 @@ class GameAI():
             self.xObj,self.yObj = self.gamemap.getNearNode(self.player.x,self.player.y,"powerup")
             a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj)
             self.convertPathToCommands(a)                      
-    
-        elif "blocked" in self.status:
-            if random.randint(0,1):
-                self.proxEvento.append("virar_direita")
-            else:
-                self.proxEvento.append("virar_esquerda")
 
         # o melhor seria se sentisse uma breeze ir para um lugar seguro usando o A*
 
