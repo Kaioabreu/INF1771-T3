@@ -159,6 +159,12 @@ class GameAI():
                 elif s == "redLight":
                     if(not (self.player.x, self.player.y) in self.gamemap.getPowerupPos()):
                         self.gamemap.addPosition("powerup", self.player.x, self.player.y)
+                elif s == "breeze" or s == "flash":
+                    self.proxEvento = []
+                    coords = (self.xObj,self.yObj)
+                    if (coords in self.gamemap.getGoldPos() or coords in self.gamemap.getPowerupPos()):
+                        a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj)
+                        self.convertPathToCommands(a)
                 elif s == "blocked":
                     self.GetObservationsClean()
                     if(not (self.NextPosition().x,self.NextPosition().y) in self.gamemap.getBlockedPos()):
@@ -170,8 +176,9 @@ class GameAI():
                             self.convertPathToCommands(a)
                         #for i in self.gamemap.getBlockedPos():
                         #print(self.gamemap.getBlockedPos())
-                elif s == "breeze" or s == "flash":
-                    self.proxEvento = []
+
+                elif s[:6] == "enemy#":
+                    self.proxEvento.insert(0,"atacar")
 
     # <summary>
     # No observations received
@@ -257,7 +264,8 @@ class GameAI():
     def GetDecision(self):
 
         if(self.status!=[]):
-            print(self.status)
+            #print(self.status)
+            pass
         #Se energia <30, ir para um powerup caso tenha algum anotado (A*)
 
         #Após achar 3 ouros aleatóriamente, começar a percorrer um mesmo caminho pegando esses 3 (A*)
@@ -271,10 +279,7 @@ class GameAI():
         elif (self.energy<=50 and self.gamemap.getPowerupPos()!=[]):
             self.xObj,self.yObj = self.gamemap.getNearNode(self.player.x,self.player.y,"powerup")
             a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj)
-            self.convertPathToCommands(a)               
-
-        elif "enemy#1" in self.status or "enemy#2" in self.status or "enemy#3" in self.status or "enemy#4" in self.status or "enemy#5" in self.status or "enemy#6" in self.status or "enemy#7" in self.status: #mudar
-            self.proxEvento.append("atacar")        
+            self.convertPathToCommands(a)                      
     
         elif "blocked" in self.status:
             if random.randint(0,1):
@@ -285,7 +290,6 @@ class GameAI():
         # o melhor seria se sentisse uma breeze ir para um lugar seguro usando o A*
 
         elif self.contEvent >= 100:
-            print(self.proxEvento)
             self.contEvent = 0
             if self.gamemap.goldPos != []:
                 self.xObj,self.yObj = self.gamemap.getNearNode(self.player.x,self.player.y,"gold")
@@ -293,8 +297,9 @@ class GameAI():
                 self.convertPathToCommands(a)
         
         else:
+
             self.xObj,self.yObj = self.gamemap.getNearNode(self.player.x,self.player.y,"notVisit")
-            a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj )
+            a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj)
             self.convertPathToCommands(a)
         if self.proxEvento == []:
             self.proxEvento.append("")

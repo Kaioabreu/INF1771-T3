@@ -57,6 +57,8 @@ class Gamemap():
             lista = self.goldPos
         nearest = lista[0]
         menorValor = self.manhattan(nearest[0],nearest[1],x,y)
+        if menorValor == 0 and type == "notVisit":
+            self.notVisit.remove(nearest)
         if menorValor == 1:
             return nearest
         for i in lista[1:]:
@@ -65,9 +67,11 @@ class Gamemap():
                 if valor<menorValor:
                     menorValor = valor
                     nearest = i
+                    if menorValor == 0 and type == "notVisit":
+                        self.notVisit.remove(nearest)
                     if menorValor == 1:
-                        return i
-        return i
+                        return nearest
+        return nearest
 #Seria bom ajustar essa função futuramente
     def nodeCost(self,x,y):
         if(self.isBadPos(x,y)):
