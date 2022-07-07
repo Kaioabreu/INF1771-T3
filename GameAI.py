@@ -39,6 +39,7 @@ class GameAI():
     tempBlock = []
     xObj = 0 
     yObj = 0
+    shotsCount = 0
     #currentAction = "goldpath"
 
     # <summary>
@@ -178,7 +179,12 @@ class GameAI():
                         #print(self.gamemap.getBlockedPos())
 
                 elif s[:6] == "enemy#":
-                    self.proxEvento.insert(0,"atacar")
+                    if self.shotsCount>10:
+                        self.shotsCount=0
+                        self.proxEvento.insert(0,"virar_esquerda")
+                    else:
+                        self.shotsCount+=1
+                        self.proxEvento.insert(0,"atacar")
 
     # <summary>
     # No observations received
