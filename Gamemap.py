@@ -12,6 +12,7 @@ class Gamemap():
     safePos = []
     unsafePos = []
     notVisit = []
+    auxGoldPos = []
     
     def addPosition(self,type, x,y):
         if type == "gold":
@@ -48,13 +49,27 @@ class Gamemap():
         return self.unsafePos
     def getNotVisit(self):
         return self.notVisit
+    def getAuxGold(self):
+        return self.auxGoldPos
+    def populateAuxGoldPos(self,xi,yi):
+        goldcopy = self.goldPos.copy()
+        goldcopy = sorted(goldcopy, key=lambda x: self.manhattan(x[0],x[1],xi,yi))
+        first = goldcopy.pop(0)
+        self.auxGoldPos = goldcopy.copy()
+
     def getNearNode(self,x,y,type):
         if type == "notVisit":
             lista = self.notVisit
         elif type == "powerup":
             lista = self.powerupPos
         elif type == "gold":
-            lista = self.goldPos
+            if ((x,y) in self.goldPos):
+                lista = self.goldPos.copy()
+                lista.remove((x,y))
+                if lista == []:
+                    return (10,10)
+            else:
+                lista = self.goldPos
         nearest = lista[0]
         menorValor = self.manhattan(nearest[0],nearest[1],x,y)
         if menorValor == 0 and type == "notVisit":

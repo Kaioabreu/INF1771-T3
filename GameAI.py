@@ -153,11 +153,19 @@ class GameAI():
             if s == "blocked" or s == "steps" or s == "breeze" or s == "blueLight" or s =="redLight" or s[:6]=="enemy#":
                 self.status.append(s)
                 if s == "blueLight":
+                    self.contEvent=0
                     self.proxEvento.insert(0,"pegar")
                     if(not (self.player.x, self.player.y) in self.gamemap.getGoldPos()):
                         self.gamemap.addPosition("gold",self.player.x, self.player.y)
-                        
+                    if(len(self.gamemap.getGoldPos())>=3):
+                        if self.gamemap.getAuxGold() == []:
+                            self.gamemap.populateAuxGoldPos(self.player.x,self.player.y)    
+                        self.xObj,self.yObj=self.gamemap.getAuxGold().pop(0)
+                        a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj)
+                        self.convertPathToCommands(a)
+
                 elif s == "redLight":
+                    self.GetObservationsClean()
                     if(not (self.player.x, self.player.y) in self.gamemap.getPowerupPos()):
                         self.gamemap.addPosition("powerup", self.player.x, self.player.y)
                 elif s == "breeze" or s == "flash":
@@ -295,15 +303,14 @@ class GameAI():
 
         # o melhor seria se sentisse uma breeze ir para um lugar seguro usando o A*
 
-        elif self.contEvent >= 100:
-            self.contEvent = 0
+        elif self.contEvent >= 70:
             if self.gamemap.goldPos != []:
                 self.xObj,self.yObj = self.gamemap.getNearNode(self.player.x,self.player.y,"gold")
                 a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj )
                 self.convertPathToCommands(a)
-        
+            else:
+                self.contEvent=0        
         else:
-
             self.xObj,self.yObj = self.gamemap.getNearNode(self.player.x,self.player.y,"notVisit")
             a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj)
             self.convertPathToCommands(a)
