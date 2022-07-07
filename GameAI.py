@@ -148,6 +148,9 @@ class GameAI():
     def GetObservations(self, o):
 
         #cmd = "";
+        if ("breeze" not in o):
+            self.SafePoints()
+
         for s in o:
         
             if s == "blocked" or s == "steps" or s == "breeze" or s == "blueLight" or s =="redLight" or s[:6]=="enemy#":
@@ -171,7 +174,11 @@ class GameAI():
                     if(not (self.player.x, self.player.y) in self.gamemap.getPowerupPos()):
                         self.gamemap.addPosition("powerup", self.player.x, self.player.y)
                 elif s == "breeze" or s == "flash":
+                    print("breeze")
+                    self.unsafePoints()
+                    self.GetObservationsClean()
                     self.proxEvento = []
+                    self.proxEvento.insert(0,"andar_re")
                     coords = (self.xObj,self.yObj)
                     if (coords in self.gamemap.getGoldPos() or coords in self.gamemap.getPowerupPos()):
                         a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj)
@@ -209,26 +216,24 @@ class GameAI():
             return False
         return True
 
+    def SafePoints(self):
+        p = self.player
+        self.gamemap.addPosition("safe", p.x+1, p.y)
+        self.gamemap.addPosition("safe", p.x-1, p.y)
+        self.gamemap.addPosition("safe", p.x, p.y+1)
+        self.gamemap.addPosition("safe", p.x, p.y-1)
 #Pode ser lapidada se tiver tempo sobrando(Achar exatamente onde está o buraco)
     def unsafePoints(self):
         p = self.player
-        self.gamemap.addPosition("unsafe", p.x, p.y)
-        if (self.dir == "north"):
+        lista = self.gamemap.getSafePos()
+        if ((p.x+1,p.y) not in lista and p.x<self.gamemap.heigth-1):
             self.gamemap.addPosition("unsafe", p.x+1, p.y)
+        if ((p.x-1,p.y) not in lista and p.x>0):
             self.gamemap.addPosition("unsafe", p.x-1, p.y)
-            self.gamemap.addPosition("unsafe", p.x, p.y-1)
-        elif (self.dir == "south"):
-            self.gamemap.addPosition("unsafe", p.x+1, p.y)
-            self.gamemap.addPosition("unsafe", p.x-1, p.y)
+        if ((p.x,p.y+1) not in lista and p.y<self.gamemap.width-1):
             self.gamemap.addPosition("unsafe", p.x, p.y+1)
-        elif (self.dir == "west"):
-            self.gamemap.addPosition("unsafe", p.x-1, p.y)
+        if ((p.x,p.y-1) not in lista and p.y>0):
             self.gamemap.addPosition("unsafe", p.x, p.y-1)
-            self.gamemap.addPosition("unsafe", p.x, p.y+1)
-        elif (self.dir == "east"):
-            self.gamemap.addPosition("unsafe", p.x+1, p.y)
-            self.gamemap.addPosition("unsafe", p.x, p.y-1)
-            self.gamemap.addPosition("unsafe", p.x, p.y+1)
         #print("Unsafe: ",self.gamemap.getUnsafePos())
     
     def convertPathToCommands(self, path):
@@ -280,19 +285,15 @@ class GameAI():
     def GetDecision(self):
 
         if(self.status!=[]):
-            #print(self.status)
+            print(self.status)
             pass
         #Se energia <30, ir para um powerup caso tenha algum anotado (A*)
 
         #Após achar 3 ouros aleatóriamente, começar a percorrer um mesmo caminho pegando esses 3 (A*)
         # toda vez que ele vira o cont é zerado
-        if "breeze" in self.status:
-            self.unsafePoints()
-            self.proxEvento.append("andar_re")
-            a = self.gamemap.aStar(self.player.x,self.player.y,10,10)
-            self.convertPathToCommands(a)
+            
             #print(self.proxEvento)
-        elif (self.energy<=50 and self.gamemap.getPowerupPos()!=[]):
+        if (self.energy<=50 and self.gamemap.getPowerupPos()!=[]):
             self.xObj,self.yObj = self.gamemap.getNearNode(self.player.x,self.player.y,"powerup")
             a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj)
             self.convertPathToCommands(a)                      

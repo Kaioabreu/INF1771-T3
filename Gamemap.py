@@ -22,6 +22,8 @@ class Gamemap():
             self.unsafePos.append((x,y))
             if ((x,y) in self.notVisit):
                 self.notVisit.remove((x,y))
+        elif type == "safe":
+            self.safePos.append((x,y))
         elif type == "block":
             self.blockedPos.append((x,y))
             if ((x,y) in self.notVisit):
@@ -40,6 +42,9 @@ class Gamemap():
 
     def getVoidPos(self):
         return self.voidPos
+    
+    def getSafePos(self):
+        return self.safePos
 
     def getBlockedPos(self):
         return self.blockedPos
@@ -96,7 +101,7 @@ class Gamemap():
 #Seria bom ajustar essa função futuramente
     def nodeCost(self,x,y):
         if(self.isBadPos(x,y)):
-            return 50
+            return 5000
         return 1
 
     def isBadPos(self,x,y):

@@ -306,6 +306,8 @@ class Bot():
             notVisited = self.gameAi.gamemap.getNotVisit()
             if(pos in notVisited):
                 notVisited.remove(pos)
+            if(pos not in self.gameAi.gamemap.getSafePos()):
+                self.gameAi.gamemap.getSafePos().append(pos)
                 #print(len(notVisited))
             self.gameAi.contEvent+=1
             self.client.sendForward()
@@ -360,7 +362,7 @@ class Bot():
 
             print("Connected")
             self.client.sendName(self.name)
-            self.client.sendRGB(255,82,45)  # BOT COLOR
+            self.client.sendRGB(128,82,45)  # BOT COLOR
             self.client.sendRequestGameStatus()
             self.client.sendRequestUserStatus()
             self.client.sendRequestObservation()
