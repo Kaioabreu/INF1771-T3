@@ -1,6 +1,7 @@
 from platform import node
 from Map.Position import Position
-
+width = 34
+heigth = 59
 class Gamemap():   
     width = 34
     heigth = 59
@@ -49,16 +50,6 @@ class Gamemap():
             return 50
         return 1
 
-    def getVizinhos(self,x,y,cost,xf,yf):
-        ret = []
-
-        ret.append(x-1,y,cost+self.nodeCost(x-1,y),self.manhattan(x-1,y,xf,yf))
-        ret.append(x+1,y,cost+self.nodeCost(x+1,y),self.manhattan(x+1,y,xf,yf))
-        ret.append(x,y+1,cost+self.nodeCost(x,y+1),self.manhattan(x,y+1,xf,yf))
-        ret.append(x,y-1,cost+self.nodeCost(x,y-1),self.manhattan(x,y-1,xf,yf))
-
-        return ret
-
     def isBadPos(self,x,y):
         return ((x,y) in self.getBlockedPos() or (x,y) in self.getUnsafePos())
 
@@ -79,7 +70,7 @@ class Gamemap():
                 return current.getPath()
             aberta.remove(current)
             fechada.append(current)
-            vizinhos = current.getVizinhos()
+            vizinhos = current.getVizinhos(self.blockedPos,self.unsafePos)
             for nextNode in vizinhos:
 
                 inFechada = False
@@ -116,25 +107,40 @@ class Node:
         self.g=g
         self.f = self.g + self.h
         self.partner = None
-        self.gamemap = Gamemap()
     
     def manhattan(self,xf,yf):
         return abs(self.x-xf)+abs(self.y-yf)
     
     def isValid(self,x,y):
-        return(x>=0 and x<=self.gamemap.heigth and y>=0 and y<=self.gamemap.width) 
+        return(x>=0 and x<heigth and y>=0 and y<width) 
 
-    def getVizinhos(self):
+    def getVizinhos(self, blockedPos, unsafedPos):
 
         ret = []
         if (self.isValid(self.x-1,self.y)):
-            ret.append(Node(self.x-1,self.y,self.g+self.gamemap.nodeCost(self.x-1,self.y),self.xf,self.yf))
+            if ((self.x-1,self.y) in blockedPos or (self.x-1,self.y) in unsafedPos):
+                cost = 50
+            else:
+                cost = 1
+            ret.append(Node(self.x-1,self.y,self.g+cost,self.xf,self.yf))
         if (self.isValid(self.x+1,self.y)):
-            ret.append(Node(self.x+1,self.y,self.g+self.gamemap.nodeCost(self.x+1,self.y),self.xf,self.yf))
+            if ((self.x+1,self.y) in blockedPos or (self.x+1,self.y) in unsafedPos):
+                cost = 50
+            else:
+                cost = 1
+            ret.append(Node(self.x+1,self.y,self.g+cost,self.xf,self.yf))
         if (self.isValid(self.x,self.y+1)):
-            ret.append(Node(self.x,self.y+1,self.g+self.gamemap.nodeCost(self.x,self.y+1),self.xf,self.yf))
+            if ((self.x,self.y+1) in blockedPos or (self.x,self.y+1) in unsafedPos):
+                cost = 50
+            else:
+                cost = 1
+            ret.append(Node(self.x,self.y+1,self.g+cost,self.xf,self.yf))
         if (self.isValid(self.x,self.y-1)):
-            ret.append(Node(self.x,self.y-1,self.g+self.gamemap.nodeCost(self.x,self.y-1),self.xf,self.yf))
+            if ((self.x,self.y-1) in blockedPos or (self.x,self.y-1) in unsafedPos):
+                cost = 50
+            else:
+                cost = 1
+            ret.append(Node(self.x,self.y-1,self.g+cost,self.xf,self.yf))
         return ret
     def getPath(self):
         temp=self

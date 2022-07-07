@@ -31,7 +31,7 @@ import datetime
 # </summary>
 class Bot():
 
-    name = "jkfd" # BOT NAME
+    name = "Bot19238" # BOT NAME
     host = "atari.icad.puc-rio.br" # SERVER
 
     client = None
@@ -306,7 +306,6 @@ class Bot():
             notVisited = self.gameAi.gamemap.getNotVisit()
             if(pos in notVisited):
                 notVisited.remove(pos)
-                print(len(notVisited))
             self.client.sendForward()
         elif decision ==  "atacar":
             self.client.sendShoot()
@@ -359,7 +358,7 @@ class Bot():
 
             print("Connected")
             self.client.sendName(self.name)
-            self.client.sendRGB(255,255,255)  # BOT COLOR
+            self.client.sendRGB(119,82,45)  # BOT COLOR
             self.client.sendRequestGameStatus()
             self.client.sendRequestUserStatus()
             self.client.sendRequestObservation()
