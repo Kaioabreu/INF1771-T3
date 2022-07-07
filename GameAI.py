@@ -303,7 +303,7 @@ class GameAI():
 
         # o melhor seria se sentisse uma breeze ir para um lugar seguro usando o A*
 
-        elif self.contEvent >= 70:
+        elif self.contEvent >= 80-len(self.gamemap.getGoldPos()):
             if self.gamemap.goldPos != []:
                 self.xObj,self.yObj = self.gamemap.getNearNode(self.player.x,self.player.y,"gold")
                 a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj )

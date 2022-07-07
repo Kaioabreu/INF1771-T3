@@ -47,15 +47,19 @@ class Gamemap():
     
     def getUnsafePos(self):
         return self.unsafePos
+    
     def getNotVisit(self):
         return self.notVisit
+    
     def getAuxGold(self):
         return self.auxGoldPos
+    
     def populateAuxGoldPos(self,xi,yi):
         goldcopy = self.goldPos.copy()
         goldcopy = sorted(goldcopy, key=lambda x: self.manhattan(x[0],x[1],xi,yi))
         first = goldcopy.pop(0)
         self.auxGoldPos = goldcopy.copy()
+        self.auxGoldPos.append(first)
 
     def getNearNode(self,x,y,type):
         if type == "notVisit":
