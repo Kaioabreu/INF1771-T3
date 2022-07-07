@@ -306,6 +306,9 @@ class Bot():
             notVisited = self.gameAi.gamemap.getNotVisit()
             if(pos in notVisited):
                 notVisited.remove(pos)
+                #print(len(notVisited))
+            self.gameAi.contEvent+=1
+            print(self.gameAi.contEvent)
             self.client.sendForward()
         elif decision ==  "atacar":
             self.client.sendShoot()

@@ -37,6 +37,8 @@ class GameAI():
     proxEvento = []
     gamemap = Gamemap()
     tempBlock = []
+    xObj = 0 
+    yObj = 0
     #currentAction = "goldpath"
 
     # <summary>
@@ -150,7 +152,6 @@ class GameAI():
             if s == "blocked" or s == "steps" or s == "breeze" or s == "blueLight" or s =="redLight" or s[:6]=="enemy#":
                 self.status.append(s)
                 if s == "blueLight":
-                    print(self.gamemap.goldPos)
                     self.proxEvento.insert(0,"pegar")
                     if(not (self.player.x, self.player.y) in self.gamemap.getGoldPos()):
                         self.gamemap.addPosition("gold",self.player.x, self.player.y)
@@ -159,10 +160,14 @@ class GameAI():
                     if(not (self.player.x, self.player.y) in self.gamemap.getPowerupPos()):
                         self.gamemap.addPosition("powerup", self.player.x, self.player.y)
                 elif s == "blocked":
-                        
+                    self.GetObservationsClean()
                     if(not (self.NextPosition().x,self.NextPosition().y) in self.gamemap.getBlockedPos()):
                         self.gamemap.addPosition("block", self.NextPosition().x,self.NextPosition().y)
                         self.proxEvento = []
+                        coords = (self.xObj,self.yObj)
+                        if (coords in self.gamemap.getGoldPos() or coords in self.gamemap.getPowerupPos()):
+                            a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj)
+                            self.convertPathToCommands(a)
                         #for i in self.gamemap.getBlockedPos():
                         #print(self.gamemap.getBlockedPos())
                 elif s == "breeze" or s == "flash":
@@ -250,35 +255,28 @@ class GameAI():
 
     
     def GetDecision(self):
+
         if(self.status!=[]):
             print(self.status)
         #Se energia <30, ir para um powerup caso tenha algum anotado (A*)
 
         #Após achar 3 ouros aleatóriamente, começar a percorrer um mesmo caminho pegando esses 3 (A*)
-
-        self.contEvent+=1 # toda vez que ele vira o cont é zerado
+        # toda vez que ele vira o cont é zerado
         if "breeze" in self.status:
             self.unsafePoints()
-            self.proxEvento = list() #zerando os próximos comandos
             self.proxEvento.append("andar_re")
-       
             a = self.gamemap.aStar(self.player.x,self.player.y,10,10)
             self.convertPathToCommands(a)
             #print(self.proxEvento)
-        elif "blueLight" in self.status:
-            print(self.gamemap.goldPos)
-            #self.proxEvento.append("pegar")
-        elif "redLight" in self.status and self.energy<30:
-            self.proxEvento.append("pegar")
-        elif "breeze" in self.status:
-            self.unsafePoints()
-            self.proxEvento.append("andar_re")
+        elif (self.energy<=50 and self.gamemap.getPowerupPos()!=[]):
+            self.xObj,self.yObj = self.gamemap.getNearNode(self.player.x,self.player.y,"powerup")
+            a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj)
+            self.convertPathToCommands(a)               
 
-        elif "enemy#1" in self.status or "enemy#2" in self.status or "enemy#3" in self.status:
+        elif "enemy#1" in self.status or "enemy#2" in self.status or "enemy#3" in self.status or "enemy#4" in self.status or "enemy#5" in self.status or "enemy#6" in self.status or "enemy#7" in self.status: #mudar
             self.proxEvento.append("atacar")        
     
         elif "blocked" in self.status:
-            self.contEvent = 0
             if random.randint(0,1):
                 self.proxEvento.append("virar_direita")
             else:
@@ -287,26 +285,20 @@ class GameAI():
         # o melhor seria se sentisse uma breeze ir para um lugar seguro usando o A*
 
         elif self.contEvent >= 100:
+            print(self.proxEvento)
             self.contEvent = 0
             if self.gamemap.goldPos != []:
-                x,y = self.gamemap.goldPos[0]
-                a = self.gamemap.aStar(self.player.x,self.player.y,x,y)
+                self.xObj,self.yObj = self.gamemap.getNearNode(self.player.x,self.player.y,"gold")
+                a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj )
                 self.convertPathToCommands(a)
-            else:
-                if random.randint(0,1):
-                    self.proxEvento.append("virar_direita")
-                else: 
-                    self.proxEvento.append("virar_esquerda")
-            
-            
-        elif self.isValidFoward():
-            self.proxEvento.append("andar")
-        elif random.randint(0,1):
-            self.proxEvento.append("virar_direita")
-        else:
-            self.proxEvento.append("virar_esquerda")
         
-        if(self.proxEvento == []):
+        else:
+            self.xObj,self.yObj = self.gamemap.getNearNode(self.player.x,self.player.y,"notVisit")
+            a = self.gamemap.aStar(self.player.x,self.player.y,self.xObj,self.yObj )
+            self.convertPathToCommands(a)
+        if self.proxEvento == []:
             self.proxEvento.append("")
+            
+        
         
 

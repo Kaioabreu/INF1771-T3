@@ -18,8 +18,12 @@ class Gamemap():
             self.goldPos.append((x,y))
         elif type == "unsafe":
             self.unsafePos.append((x,y))
+            if ((x,y) in self.notVisit):
+                self.notVisit.remove((x,y))
         elif type == "block":
             self.blockedPos.append((x,y))
+            if ((x,y) in self.notVisit):
+                self.notVisit.remove((x,y))
         elif type == "powerup":
             self.powerupPos.append((x,y))
     def __init__(self):
@@ -44,6 +48,26 @@ class Gamemap():
         return self.unsafePos
     def getNotVisit(self):
         return self.notVisit
+    def getNearNode(self,x,y,type):
+        if type == "notVisit":
+            lista = self.notVisit
+        elif type == "powerup":
+            lista = self.powerupPos
+        elif type == "gold":
+            lista = self.goldPos
+        nearest = lista[0]
+        menorValor = self.manhattan(nearest[0],nearest[1],x,y)
+        if menorValor == 1:
+            return nearest
+        for i in lista[1:]:
+            if (not self.isBadPos(i[0],i[1])):
+                valor=self.manhattan(i[0],i[1],x,y)
+                if valor<menorValor:
+                    menorValor = valor
+                    nearest = i
+                    if menorValor == 1:
+                        return i
+        return i
 #Seria bom ajustar essa função futuramente
     def nodeCost(self,x,y):
         if(self.isBadPos(x,y)):
@@ -53,7 +77,7 @@ class Gamemap():
     def isBadPos(self,x,y):
         return ((x,y) in self.getBlockedPos() or (x,y) in self.getUnsafePos())
 
-    def manhattan(x1,y1,x2,y2):
+    def manhattan(self,x1,y1,x2,y2):
         return abs(x1-x2)+abs(y1-y2)
     
     #A* funciona dando como parametro as coordenadas iniciais, e depois as coordenadas finais, os pesos e custos estão na funçao nodeCost(não deu tempo de fazer direito).
